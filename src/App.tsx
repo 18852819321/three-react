@@ -1,26 +1,34 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useRef, useState } from 'react';
+import { Canvas } from '@react-three/fiber';
+import * as THREE from 'three';
 
-function App() {
+const Pentagon: React.FC = () => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const [hovered,setHover] = useState(false)
+
+
+  useEffect(() => {
+    if (meshRef.current) {
+      const edges = new THREE.EdgesGeometry(meshRef.current.geometry);
+      const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 'black', linewidth: 4 }));
+      meshRef.current.add(line);
+    }
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <mesh ref={meshRef} onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
+      <circleGeometry args={[1, 5]} /> {/* 1 is the radius, 5 is the number of segments */}
+      <meshBasicMaterial color={ hovered ? 'red' : 'white'} />
+    </mesh>
   );
-}
+};
 
-export default App;
+export const App: React.FC = () => {
+  return (
+    <Canvas style={{ height: '100vh', width: '100vw' }}>
+      <ambientLight />
+      <pointLight position={[0, 0, 0]} />
+      <Pentagon />
+    </Canvas>
+  );
+};
